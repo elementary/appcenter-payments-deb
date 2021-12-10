@@ -6,10 +6,18 @@ on:
     branches:
       - main
 
+concurrency:
+  group: Deploy
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+
+    environment:
+      name: Production
+      url: https://beta.developer.elementary.io/api/payment/
 
     steps:
       - name: Checkout
