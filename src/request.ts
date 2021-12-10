@@ -41,9 +41,7 @@ const DATA_SCHEMA = z
       .email({
         message: 'Email must be a valid email address'
       })
-      .nonempty({
-        message: 'Email is required'
-      }),
+      .optional(),
     amount: z.preprocess(
       Number,
       z
