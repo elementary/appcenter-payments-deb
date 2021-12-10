@@ -10,7 +10,7 @@ webpack_config = "webpack.config.js"
 
 [vars]
 NODE_ENV = "development"
-STRIPE_PRIVATE_KEY = "pk_test_abc123"
+STRIPE_SECRET_KEY = "pk_test_abc123"
 
 [env.production]
 name = "appcenter-payments-deb"

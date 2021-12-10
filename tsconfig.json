@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "target": "esnext",
+    "target": "es5",
     "module": "commonjs",
-    "lib": ["esnext"],
+    "lib": ["es5"],
     "alwaysStrict": true,
     "strict": true,
     "preserveConstEnums": true,

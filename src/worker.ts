@@ -1,147 +1,66 @@
-import * as yup from 'yup'
+// import Stripe from 'stripe'
+import { ZodError } from 'zod'
 
-const RDNN_SCHEMA = yup
-  .string()
-  .trim()
-  .max(100)
-  .matches(/^(?:[a-z0-9-_]+\.){2,}(?:[a-z0-9-_]+)$/i, {
-    message: 'Project RDNN is not in an RDNN format'
-  })
+import { parseRequest, RequestType } from './request'
+import { ResponseError } from './response'
 
-const BODY_SCHEMA = yup.object().shape({
-  key: yup
-    .string()
-    .required()
-    .trim()
-    .max(255)
-    .matches(/^ac_[a-z0-9]+/i),
-  token: yup
-    .string()
-    .required()
-    .trim()
-    .max(255)
-    .matches(/^ch_[a-z0-9]+/i),
-  email: yup
-    .string()
-    .required()
-    .trim()
-    .email(),
-  amount: yup
-    .number()
-    .required()
-    .moreThan(99)
-    .lessThan(100000001)
-    .integer(),
-  currency: yup
-    .string()
-    .optional()
-    .oneOf(['USD'])
-})
+// declare const STRIPE_SECRET_KEY: string
 
-function errorResponse (
-  error: {
-    title: String
-    detail: String
-    source?: {
-      parameter?: String
-      pointer?: String
-    }
-  },
-  status = 400
-): Response {
-  const body = {
-    errors: [Object.assign({ status }, error)]
-  }
-
-  return new Response(JSON.stringify(body), { status })
-}
-
-function parseRdnn (event: FetchEvent): String {
-  const parsedUrl = new URL(event.request.url)
-  const pathChunks = parsedUrl.pathname.split('/')
-  const lastChunk = pathChunks[pathChunks.length - 1]
-
-  return lastChunk == null ? '' : lastChunk
-}
-
-async function parseBody (request: Request): Promise<Object> {
-  const { headers } = request
-  const contentTypeHeader = headers.get('content-type')
-  const contentType = contentTypeHeader == null ? '' : contentTypeHeader
-
-  if (contentType.includes('application/json')) {
-    return await request.json()
-  } else {
-    return {}
-  }
-}
+// const stripe = new Stripe(STRIPE_SECRET_KEY, {
+//  apiVersion: '2020-08-27'
+// })
 
 async function handleRequest (event: FetchEvent): Promise<Response> {
   if (event.request.method !== 'POST') {
-    return errorResponse({
-      title: 'Bad Method',
-      detail: 'This endpoint only accepts POST requests'
-    })
+    return new ResponseError()
+      .addError({
+        title: 'Bad Method',
+        detail: 'This endpoint only accepts POST requests'
+      })
+      .toResponse()
   }
 
-  const projectRdnn = parseRdnn(event)
-  const projectRdnnIsValid = await RDNN_SCHEMA.isValid(projectRdnn)
-
-  if (!projectRdnnIsValid) {
-    return errorResponse({
-      title: 'Bad Request',
-      detail: 'Project RDNN is not an RDNN format',
-      source: { parameter: 'project' }
-    })
+  let request: RequestType = {
+    rdnn: '',
+    key: '',
+    token: '',
+    email: '',
+    amount: 0,
+    currency: 'USD'
   }
 
-  if (event.request.body == null) {
-    return errorResponse({
-      title: 'Bad Request',
-      detail: 'This endpoint requires a POST body'
-    })
-  }
-
-  let payload = {}
   try {
-    const body = (await parseBody(event.request)) as { data?: object }
-    payload = await BODY_SCHEMA.validate(body.data, {
-      abortEarly: true,
-      stripUnknown: true
-    })
+    request = await parseRequest(event.request)
   } catch (err) {
-    if (err instanceof yup.ValidationError && err.path != null) {
-      return errorResponse({
-        title: 'Bad Request',
-        detail: err.message,
-        source: { pointer: `/data/attributes/${err.path}` }
-      })
-    } else if (err instanceof yup.ValidationError) {
-      return errorResponse({
-        title: 'Bad Request',
-        detail: err.message
-      })
+    if (err instanceof ZodError) {
+      return new ResponseError().addValidationError(err).toResponse()
     } else {
-      return errorResponse({
-        title: 'Bad Request',
-        detail: 'Unable to parse JSON POST body'
-      })
+      return new ResponseError()
+        .addError({
+          title: 'Bad Request',
+          detail: 'Unable to parse JSON POST body'
+        })
+        .toResponse()
     }
   }
 
-  console.log('payload', payload)
-
-  const payloadIsValid = await BODY_SCHEMA.isValid(payload)
-  if (!payloadIsValid) {
-    return errorResponse({
-      title: 'Bad Request',
-      detail: 'Invalid JSON POST body'
-    })
-  }
+  console.log('request', request)
 
   return new Response(JSON.stringify({ hello: 'worker' }), { status: 200 })
+
+  /**
+  const payment = await stripe.charges.create({
+    amount: request.amount,
+    application_fee_amount: 100,
+    capture: true,
+    currency: request.currency,
+    description: request.rdnn,
+    on_behalf_of: request.key,
+    source: request.token
+  })
+  */
 }
 
-addEventListener('fetch', event => {
+addEventListener('fetch', (event: FetchEvent) => {
   event.respondWith(handleRequest(event))
 })
