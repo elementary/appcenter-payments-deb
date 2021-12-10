@@ -1,15 +1,28 @@
 import * as JSONAPI from 'jsonapi-typescript'
+import Stripe from 'stripe'
 import { ZodError } from 'zod'
 
 export class ResponseError {
   protected errors: JSONAPI.ErrorObject[]
+  protected status: number
 
   constructor () {
     this.errors = []
+    this.status = 400
   }
 
   addError (error: JSONAPI.ErrorObject): this {
     this.errors.push(error)
+
+    return this
+  }
+
+  addStripeError (error: Stripe.StripeError): this {
+    this.errors.push({
+      code: error.type,
+      title: error.name,
+      detail: error.message
+    })
 
     return this
   }
@@ -34,7 +47,13 @@ export class ResponseError {
     return this
   }
 
-  toObject (): JSONAPI.DocWithErrors {
+  setStatus (status: number): this {
+    this.status = status
+
+    return this
+  }
+
+  toObject (): JSONAPI.Document {
     return { errors: this.errors }
   }
 
@@ -43,6 +62,6 @@ export class ResponseError {
   }
 
   toResponse (): Response {
-    return new Response(this.toString(), { status: 400 })
+    return new Response(this.toString(), { status: this.status })
   }
 }

@@ -1,14 +1,9 @@
-// import Stripe from 'stripe'
+import Stripe from 'stripe'
 import { ZodError } from 'zod'
 
 import { parseRequest, RequestType } from './request'
 import { ResponseError } from './response'
-
-// declare const STRIPE_SECRET_KEY: string
-
-// const stripe = new Stripe(STRIPE_SECRET_KEY, {
-//  apiVersion: '2020-08-27'
-// })
+import { createCharge } from './stripe'
 
 async function handleRequest (event: FetchEvent): Promise<Response> {
   if (event.request.method !== 'POST') {
@@ -17,6 +12,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
         title: 'Bad Method',
         detail: 'This endpoint only accepts POST requests'
       })
+      .setStatus(405)
       .toResponse()
   }
 
@@ -32,6 +28,8 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
   try {
     request = await parseRequest(event.request)
   } catch (err) {
+    console.error('Error while parsing request', JSON.stringify(err))
+
     if (err instanceof ZodError) {
       return new ResponseError().addValidationError(err).toResponse()
     } else {
@@ -44,21 +42,36 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
     }
   }
 
-  console.log('request', request)
+  try {
+    await createCharge(request)
+  } catch (err) {
+    console.error('Error while creating Stripe charge', JSON.stringify(err))
 
-  return new Response(JSON.stringify({ hello: 'worker' }), { status: 200 })
+    if (err instanceof Stripe.StripeError) {
+      return new ResponseError()
+        .addStripeError(err)
+        .setStatus(500)
+        .toResponse()
+    } else {
+      return new ResponseError()
+        .addError({
+          title: 'Unable to process payment',
+          detail:
+            'An error occured while trying to process the payment with Stripe'
+        })
+        .setStatus(500)
+        .toResponse()
+    }
+  }
 
-  /**
-  const payment = await stripe.charges.create({
-    amount: request.amount,
-    application_fee_amount: 100,
-    capture: true,
-    currency: request.currency,
-    description: request.rdnn,
-    on_behalf_of: request.key,
-    source: request.token
-  })
-  */
+  return new Response(
+    JSON.stringify({
+      name: request.rdnn,
+      key: request.key,
+      amount: request.amount
+    }),
+    { status: 200 }
+  )
 }
 
 addEventListener('fetch', (event: FetchEvent) => {

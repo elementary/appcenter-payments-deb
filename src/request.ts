@@ -19,8 +19,8 @@ const DATA_SCHEMA = z
       .max(255, {
         message: 'Stripe account key must be shorter than 255 characters'
       })
-      .regex(/^ac_[a-z0-9]+/i, {
-        message: 'Stripe account key must start with ac_'
+      .regex(/^acct_[a-z0-9]+/i, {
+        message: 'Stripe account key must start with acct_'
       })
       .nonempty({
         message: 'Stripe account key is required'
@@ -30,8 +30,8 @@ const DATA_SCHEMA = z
       .max(255, {
         message: 'Stripe token must be shorter than 255 characters'
       })
-      .regex(/^ch_[a-z0-9]+/i, {
-        message: 'Stripe token must start with ch_'
+      .regex(/^tok_[a-z0-9]+/i, {
+        message: 'Stripe token must start with tok_'
       })
       .nonempty({
         message: 'Stripe token is required'
@@ -85,8 +85,8 @@ async function parseBody (request: Request): Promise<Object> {
   const contentType = contentTypeHeader == null ? '' : contentTypeHeader
 
   if (contentType.includes('application/json')) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     // Needed for typescript to build
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const jsonBody = (await request.json()) as { data?: object }
     return jsonBody.data == null ? {} : jsonBody.data
   } else {
