@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
 import { ZodError } from 'zod'
 
+import { sendReceipt } from './mailer'
 import { parseRequest, RequestType } from './request'
 import { ResponseError } from './response'
 import { createCharge } from './stripe'
@@ -20,7 +21,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
     rdnn: '',
     key: '',
     token: '',
-    email: '',
+    email: undefined,
     amount: 0,
     currency: 'USD'
   }
@@ -62,6 +63,14 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
         .setStatus(500)
         .toResponse()
     }
+  }
+
+  if (request.email != null) {
+    event.waitUntil(
+      sendReceipt(request).catch(err => {
+        console.error('Error while sending Mailgun email', JSON.stringify(err))
+      })
+    )
   }
 
   return new Response(

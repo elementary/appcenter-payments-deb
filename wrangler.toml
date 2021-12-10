@@ -11,6 +11,8 @@ webpack_config = "webpack.config.js"
 [vars]
 NODE_ENV = "development"
 STRIPE_SECRET_KEY = "sk_test_abc1234"
+MAILGUN_USERNAME = "test"
+MAILGUN_API_KEY = "test"
 
 [env.production]
 name = "appcenter-payments-deb"
