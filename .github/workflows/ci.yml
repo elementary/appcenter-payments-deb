@@ -9,6 +9,25 @@ on:
       - synchronize
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
   format:
     name: Format
     runs-on: ubuntu-latest
@@ -20,7 +39,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '12'
+          node-version: '16'
 
       - name: Install
         run: npm ci
@@ -39,7 +58,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '12'
+          node-version: '16'
 
       - name: Install
         run: npm ci
