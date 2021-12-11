@@ -19,8 +19,8 @@ const DATA_SCHEMA = z
       .max(255, {
         message: 'Stripe account key must be shorter than 255 characters'
       })
-      .regex(/^acct_[a-z0-9]+/i, {
-        message: 'Stripe account key must start with acct_'
+      .regex(/^pk_[a-z0-9]+/i, {
+        message: 'Stripe account key must start with pk_'
       })
       .nonempty({
         message: 'Stripe account key is required'
