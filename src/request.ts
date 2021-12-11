@@ -16,6 +16,9 @@ const RDNN_SCHEMA = z
 
 const ACCOUNT_SCHEMA = z
   .string()
+  .regex(/^acct_[a-z0-9]+/i, {
+    message: 'Stripe account is must start with acc_'
+  })
   .nonempty({
     message: 'Unable to find account ID from public key'
   })
