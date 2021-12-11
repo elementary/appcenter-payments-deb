@@ -8,6 +8,10 @@ compatibility_date = "2021-12-10"
 
 webpack_config = "webpack.config.js"
 
+[[kv_namespaces]]
+binding = "STRIPE_ACCOUNT_IDS"
+id = "18fa723fb2424451ba3b44a509ae7e0b"
+
 [vars]
 NODE_ENV = "development"
 STRIPE_SECRET_KEY = "sk_test_abc1234"
