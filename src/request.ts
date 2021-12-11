@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+declare const STRIPE_ACCOUNT_IDS: KVNamespace
+
 const RDNN_SCHEMA = z
   .string()
   .max(255, {
@@ -10,6 +12,12 @@ const RDNN_SCHEMA = z
   })
   .nonempty({
     message: 'Project RDNN is required'
+  })
+
+const ACCOUNT_SCHEMA = z
+  .string()
+  .nonempty({
+    message: 'Unable to find account ID from public key'
   })
 
 const DATA_SCHEMA = z
@@ -63,10 +71,9 @@ const DATA_SCHEMA = z
   })
   .strict()
 
-export const REQUEST_SCHEMA = z.intersection(
-  z.object({ rdnn: RDNN_SCHEMA }),
-  DATA_SCHEMA
-)
+export const REQUEST_SCHEMA = DATA_SCHEMA
+  .and(z.object({ rdnn: RDNN_SCHEMA }))
+  .and(z.object({ account: ACCOUNT_SCHEMA }))
 export type RequestType = z.infer<typeof REQUEST_SCHEMA>
 
 function parseRdnn (request: Request): string {
@@ -96,5 +103,7 @@ export async function parseRequest (request: Request): Promise<RequestType> {
   const rdnn = RDNN_SCHEMA.parse(parseRdnn(request))
   const data = DATA_SCHEMA.parse(await parseBody(request))
 
-  return Object.assign({ rdnn }, data)
+  const account = ACCOUNT_SCHEMA.parse(await STRIPE_ACCOUNT_IDS.get(data.key))
+
+  return Object.assign({ account, rdnn }, data)
 }

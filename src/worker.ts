@@ -19,6 +19,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
 
   let request: RequestType = {
     rdnn: '',
+    account: '',
     key: '',
     token: '',
     email: undefined,

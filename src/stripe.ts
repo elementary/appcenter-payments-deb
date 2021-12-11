@@ -52,7 +52,7 @@ export async function createCharge (request: RequestType): Promise<string> {
     currency: request.currency,
     description: request.rdnn,
     destination: {
-      account: request.key
+      account: request.account
     },
     source: request.token
   })
