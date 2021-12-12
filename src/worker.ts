@@ -30,7 +30,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
   try {
     request = await parseRequest(event.request)
   } catch (err) {
-    console.error('Error while parsing request: ' + JSON.stringify(err))
+    console.error(`Error while parsing request: ${err}`)
 
     if (err instanceof ZodError) {
       return new ResponseError().addValidationError(err).toResponse()
@@ -47,7 +47,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
   try {
     await createCharge(request)
   } catch (err) {
-    console.error('Error while creating Stripe charge: ' + JSON.stringify(err))
+    console.error(`Error while creating Stripe charge: ${err}`)
 
     if (err instanceof Stripe.errors.StripeError) {
       return new ResponseError()
@@ -69,11 +69,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
   if (request.email != null) {
     event.waitUntil(
       sendReceipt(request).catch(err => {
-        if (err instanceof Error) {
-          console.error(`Error while sending Mailgun email: ${err.message}`)
-        } else {
-          console.error('Error while sending Mailgun email: ' + JSON.stringify(err))
-        }
+        console.error(`Error while sending Mailgun email: ${err}`)
       })
     )
   }
