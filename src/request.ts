@@ -4,7 +4,8 @@ declare const STRIPE_ACCOUNT_IDS: KVNamespace
 
 const RDNN_SCHEMA = z
   .string({
-    message: 'Unable to parse project RDNN'
+    invalid_type_error: 'Unable to parse project RDNN',
+    required_error: 'Project RDNN is required'
   })
   .max(255, {
     message: 'Project RDNN must be shorter than 255 characters'
@@ -18,7 +19,8 @@ const RDNN_SCHEMA = z
 
 const ACCOUNT_SCHEMA = z
   .string({
-    message: 'Unable to find Stripe account ID'
+    invalid_type_error: 'Error finding Stripe account ID',
+    required_error: 'Unable to find Stripe account ID'
   })
   .regex(/^acct_[a-z0-9]+/i, {
     message: 'Stripe account is must start with acc_'
@@ -31,7 +33,8 @@ const DATA_SCHEMA = z
   .object({
     key: z
       .string({
-        message: 'Unable to parse Stripe project public key'
+        invalid_type_error: 'Unable to parse Stripe project public key',
+        required_error: 'Stripe public key is required'
       })
       .max(255, {
         message: 'Stripe public key must be shorter than 255 characters'
@@ -44,7 +47,8 @@ const DATA_SCHEMA = z
       }),
     token: z
       .string({
-        message: 'Unable to parse Stripe token'
+        invalid_type_error: 'Unable to parse Stripe token',
+        required_error: 'Stripe token is required'
       })
       .max(255, {
         message: 'Stripe token must be shorter than 255 characters'
@@ -57,7 +61,7 @@ const DATA_SCHEMA = z
       }),
     email: z
       .string({
-        message: 'Unable to parse email address'
+        invalid_type_error: 'Unable to parse email address'
       })
       .email({
         message: 'Email must be a valid email address'
@@ -67,7 +71,8 @@ const DATA_SCHEMA = z
       Number,
       z
         .number({
-          message: 'Unable to parse payment amount integer'
+          invalid_type_error: 'Unable to parse payment amount integer',
+          required_error: 'Amount is required'
         })
         .int({
           message: 'Amount must be an integer'
