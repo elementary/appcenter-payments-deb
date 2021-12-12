@@ -20,7 +20,7 @@ export async function sendReceipt (request: RequestType): Promise<Object> {
     subject: 'AppCenter Purchase',
     template: 'appcenter-payment',
     'h:X-Mailgun-Variables': JSON.stringify({
-      amount: (request.amount / 100),
+      amount: Math.round(request.amount / 100),
       rdnn: request.rdnn
     })
   }
