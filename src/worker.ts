@@ -69,7 +69,11 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
   if (request.email != null) {
     event.waitUntil(
       sendReceipt(request).catch(err => {
-        console.error('Error while sending Mailgun email: ' + JSON.stringify(err))
+        if (err instanceof Error) {
+          console.error(`Error while sending Mailgun email: ${err.message}`)
+        } else {
+          console.error('Error while sending Mailgun email: ' + JSON.stringify(err))
+        }
       })
     )
   }
