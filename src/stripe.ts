@@ -53,7 +53,7 @@ export async function createCharge (request: RequestType): Promise<string> {
     description: request.rdnn,
     source: request.token
   }, {
-    stripe_account: request.account
+    stripeAccount: request.account
   })
 
   return payment.id
