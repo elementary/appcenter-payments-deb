@@ -51,10 +51,9 @@ export async function createCharge (request: RequestType): Promise<string> {
     capture: true,
     currency: request.currency,
     description: request.rdnn,
-    destination: {
-      account: request.account
-    },
     source: request.token
+  }, {
+    stripe_account: request.account
   })
 
   return payment.id
