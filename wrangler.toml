@@ -22,7 +22,7 @@ MAILGUN_API_KEY = "test"
 name = "appcenter-payments-deb"
 
 zone_id = "db8481f61b9954cace2b4e59e4235042"
-route = "beta.developer.elementary.io/api/payment/*"
+route = "developer.elementary.io/api/payment/*"
 
 kv_namespaces = [
   { binding = "STRIPE_ACCOUNT_IDS", id = "18fa723fb2424451ba3b44a509ae7e0b", preview_id = "18fa723fb2424451ba3b44a509ae7e0b" }
