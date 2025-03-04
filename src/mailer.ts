@@ -14,14 +14,21 @@ export async function sendReceipt (request: RequestType): Promise<Boolean> {
   form.append('v:amount', Math.round(request.amount / 100))
   form.append('v:rdnn', request.rdnn)
 
-  const res = await fetch('https://api.mailgun.net/v3/mg.elementary.io/messages', {
-    method: 'POST',
-    headers: {
-      Authorization: 'Basic ' + Buffer.from(`${MAILGUN_USERNAME}:${MAILGUN_API_KEY}`).toString('base64')
-    },
-    // I hate TypeScript and npm _most_ days.
-    body: ((form as unknown) as string)
-  })
+  const res = await fetch(
+    'https://api.mailgun.net/v3/mg.elementary.io/messages',
+    {
+      method: 'POST',
+      headers: {
+        Authorization:
+          'Basic ' +
+          Buffer.from(`${MAILGUN_USERNAME}:${MAILGUN_API_KEY}`).toString(
+            'base64'
+          )
+      },
+      // I hate TypeScript and npm _most_ days.
+      body: (form as unknown) as string
+    }
+  )
 
   if (res.status !== 200) {
     const body = await res.text()

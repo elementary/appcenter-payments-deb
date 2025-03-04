@@ -45,16 +45,19 @@ export function calculateFee (amount: number): FEES {
 export async function createCharge (request: RequestType): Promise<string> {
   const fees = calculateFee(request.amount)
 
-  const payment = await stripe.charges.create({
-    amount: fees.total,
-    application_fee_amount: fees.elementary,
-    capture: true,
-    currency: request.currency,
-    description: request.rdnn,
-    source: request.token
-  }, {
-    stripeAccount: request.account
-  })
+  const payment = await stripe.charges.create(
+    {
+      amount: fees.total,
+      application_fee_amount: fees.elementary,
+      capture: true,
+      currency: request.currency,
+      description: request.rdnn,
+      source: request.token
+    },
+    {
+      stripeAccount: request.account
+    }
+  )
 
   return payment.id
 }
