@@ -91,9 +91,9 @@ const DATA_SCHEMA = z
   })
   .strict()
 
-export const REQUEST_SCHEMA = DATA_SCHEMA
-  .and(z.object({ rdnn: RDNN_SCHEMA }))
-  .and(z.object({ account: ACCOUNT_SCHEMA }))
+export const REQUEST_SCHEMA = DATA_SCHEMA.and(
+  z.object({ rdnn: RDNN_SCHEMA })
+).and(z.object({ account: ACCOUNT_SCHEMA }))
 export type RequestType = z.infer<typeof REQUEST_SCHEMA>
 
 function parseRdnn (request: Request): string {
@@ -109,7 +109,10 @@ async function parseBody (request: Request): Promise<Object> {
   const contentTypeHeader = headers.get('content-type')
   const contentType = contentTypeHeader == null ? '' : contentTypeHeader
 
-  if (contentType.includes('application/json') || contentType.includes('application/vnd.api+json')) {
+  if (
+    contentType.includes('application/json') ||
+    contentType.includes('application/vnd.api+json')
+  ) {
     // Needed for typescript to build
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const jsonBody = (await request.json()) as { data?: object }
