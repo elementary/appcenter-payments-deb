@@ -121,3 +121,26 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+  types:
+    name: Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Type Check
+        run: npm run typecheck
