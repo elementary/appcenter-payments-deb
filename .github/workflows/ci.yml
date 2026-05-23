@@ -11,7 +11,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
+  
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
@@ -23,17 +28,21 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup CodeQL
-        uses: github/codeql-action/init@v2
+        uses: actions/checkout@v6
         with:
-          languages: javascript
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '16'
+          node-version: 'lts/*'
+          cache: "npm"
+
+      - name: Setup CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript
 
       - name: Install
         run: npm ci
@@ -42,7 +51,7 @@ jobs:
         run: npm run build
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v4
 
   build:
     name: Build
@@ -50,12 +59,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '16'
+          node-version: 'lts/*'
+          cache: "npm"
 
       - name: Install
         run: npm ci
@@ -69,12 +82,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '16'
+          node-version: 'lts/*'
+          cache: "npm"
 
       - name: Install
         run: npm ci
@@ -88,12 +105,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '16'
+          node-version: 'lts/*'
+          cache: "npm"
 
       - name: Install
         run: npm ci
