@@ -1,13 +1,11 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "target": "es5",
     "module": "commonjs",
     "lib": ["es5"],
     "alwaysStrict": true,
     "strict": true,
     "preserveConstEnums": true,
-    "moduleResolution": "node",
     "sourceMap": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
