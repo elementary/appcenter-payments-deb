@@ -10,7 +10,7 @@
     "sourceMap": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["@cloudflare/workers-types"]
+    "types": []
   },
   "include": ["src", "worker-configuration.d.ts"],
   "exclude": ["node_modules", "dist"]

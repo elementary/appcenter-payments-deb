@@ -4,7 +4,7 @@ main = "src/worker.ts"
 account_id = "15f2ecfa401ced79d6e9c732fd8b0cc2"
 workers_dev = true
 
-compatibility_date = "2025-05-01"
+compatibility_date = "2026-05-23"
 
 kv_namespaces = [
   { binding = "STRIPE_ACCOUNT_IDS", id = "18fa723fb2424451ba3b44a509ae7e0b", preview_id = "18fa723fb2424451ba3b44a509ae7e0b" }

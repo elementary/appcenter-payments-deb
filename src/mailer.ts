@@ -2,7 +2,10 @@ import FormData from 'form-data'
 
 import { RequestType } from './request'
 
-export async function sendReceipt (request: RequestType): Promise<Boolean> {
+export async function sendReceipt (
+  request: RequestType,
+  env: Env
+): Promise<Boolean> {
   const form = new FormData()
   form.append('from', 'elementary AppCenter <payment@elementary.io>')
   form.append('to', request.email)
@@ -17,7 +20,7 @@ export async function sendReceipt (request: RequestType): Promise<Boolean> {
       method: 'POST',
       headers: {
         Authorization:
-          'Basic ' + btoa(`${MAILGUN_USERNAME}:${MAILGUN_API_KEY}`)
+          'Basic ' + btoa(`${env.MAILGUN_USERNAME}:${env.MAILGUN_API_KEY}`)
       },
       // I hate TypeScript and npm _most_ days.
       body: (form as unknown) as string

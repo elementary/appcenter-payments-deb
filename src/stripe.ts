@@ -9,16 +9,18 @@ interface FEES {
   total: number
 }
 
-const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: STRIPE_API_VERSION as typeof Stripe.API_VERSION,
-  appInfo: {
-    name: 'appcenter-payments-deb',
-    version: '1.0.0',
-    url: 'https://github.com/elementary/appcenter-payments-deb'
-  },
-  httpClient: Stripe.createFetchHttpClient(),
-  maxNetworkRetries: 5
-})
+function createClient (env: Env): Stripe {
+  return new Stripe(env.STRIPE_SECRET_KEY!, {
+    apiVersion: env.STRIPE_API_VERSION as typeof Stripe.API_VERSION,
+    appInfo: {
+      name: 'appcenter-payments-deb',
+      version: '1.0.0',
+      url: 'https://github.com/elementary/appcenter-payments-deb'
+    },
+    httpClient: Stripe.createFetchHttpClient(),
+    maxNetworkRetries: 5
+  })
+}
 
 export function calculateFee (amount: number): FEES {
   const out = {
@@ -40,8 +42,12 @@ export function calculateFee (amount: number): FEES {
   return out
 }
 
-export async function createCharge (request: RequestType): Promise<string> {
+export async function createCharge (
+  request: RequestType,
+  env: Env
+): Promise<string> {
   const fees = calculateFee(request.amount)
+  const stripe = createClient(env)
 
   const payment = await stripe.charges.create(
     {

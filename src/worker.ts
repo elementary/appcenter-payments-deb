@@ -6,8 +6,12 @@ import { parseRequest, RequestType } from './request'
 import { ResponseError } from './response'
 import { createCharge } from './stripe'
 
-async function handleRequest (event: FetchEvent): Promise<Response> {
-  if (event.request.method !== 'POST') {
+async function handleRequest (
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext
+): Promise<Response> {
+  if (request.method !== 'POST') {
     return new ResponseError()
       .addError({
         title: 'Bad Method',
@@ -17,7 +21,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
       .toResponse()
   }
 
-  let request: RequestType = {
+  let parsed: RequestType = {
     rdnn: '',
     account: '',
     key: '',
@@ -28,7 +32,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
   }
 
   try {
-    request = await parseRequest(event.request)
+    parsed = await parseRequest(request, env)
   } catch (err) {
     console.error(`Error while parsing request: ${String(err)}`)
 
@@ -45,7 +49,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
   }
 
   try {
-    await createCharge(request)
+    await createCharge(parsed, env)
   } catch (err) {
     console.error(`Error while creating Stripe charge: ${String(err)}`)
 
@@ -66,9 +70,9 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
     }
   }
 
-  if (request.email != null) {
-    event.waitUntil(
-      sendReceipt(request).catch(err => {
+  if (parsed.email != null) {
+    ctx.waitUntil(
+      sendReceipt(parsed, env).catch(err => {
         console.error(`Error while sending Mailgun email: ${String(err)}`)
       })
     )
@@ -76,14 +80,14 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
 
   return new Response(
     JSON.stringify({
-      name: request.rdnn,
-      key: request.key,
-      amount: request.amount
+      name: parsed.rdnn,
+      key: parsed.key,
+      amount: parsed.amount
     }),
     { status: 200 }
   )
 }
 
-addEventListener('fetch', (event: FetchEvent) => {
-  event.respondWith(handleRequest(event))
-})
+export default {
+  fetch: handleRequest
+}

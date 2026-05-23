@@ -121,11 +121,16 @@ async function parseBody (request: Request): Promise<Object> {
   }
 }
 
-export async function parseRequest (request: Request): Promise<RequestType> {
+export async function parseRequest (
+  request: Request,
+  env: Env
+): Promise<RequestType> {
   const rdnn = RDNN_SCHEMA.parse(parseRdnn(request))
   const data = DATA_SCHEMA.parse(await parseBody(request))
 
-  const account = ACCOUNT_SCHEMA.parse(await STRIPE_ACCOUNT_IDS.get(data.key))
+  const account = ACCOUNT_SCHEMA.parse(
+    await env.STRIPE_ACCOUNT_IDS.get(data.key)
+  )
 
   return Object.assign({ account, rdnn }, data)
 }
