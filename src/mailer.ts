@@ -2,9 +2,6 @@ import FormData from 'form-data'
 
 import { RequestType } from './request'
 
-declare const MAILGUN_USERNAME: string
-declare const MAILGUN_API_KEY: string
-
 export async function sendReceipt (request: RequestType): Promise<Boolean> {
   const form = new FormData()
   form.append('from', 'elementary AppCenter <payment@elementary.io>')
@@ -20,10 +17,7 @@ export async function sendReceipt (request: RequestType): Promise<Boolean> {
       method: 'POST',
       headers: {
         Authorization:
-          'Basic ' +
-          Buffer.from(`${MAILGUN_USERNAME}:${MAILGUN_API_KEY}`).toString(
-            'base64'
-          )
+          'Basic ' + btoa(`${MAILGUN_USERNAME}:${MAILGUN_API_KEY}`)
       },
       // I hate TypeScript and npm _most_ days.
       body: (form as unknown) as string

@@ -5,25 +5,23 @@
   "version": "1.0.0",
   "author": "Blake Kostner <git@btkostner.io>",
   "license": "MIT",
-  "main": "dist/worker.js",
+  "main": "src/worker.ts",
   "scripts": {
     "start": "wrangler dev",
     "prebuild": "wrangler types",
-    "build": "webpack",
+    "build": "wrangler deploy --dry-run --outdir=dist",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "deploy": "wrangler publish --env production"
+    "deploy": "wrangler deploy --env production"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260523.1",
     "eslint": "^9.17.0",
     "form-data": "^4.0.5",
     "neostandard": "^0.13.0",
     "stripe": "^22.1.1",
-    "ts-loader": "^9.5.7",
     "typescript": "^6.0.3",
-    "webpack": "^5.107.1",
-    "webpack-cli": "^7.0.2",
     "wrangler": "^4.94.0",
     "zod": "^4.4.3"
   }

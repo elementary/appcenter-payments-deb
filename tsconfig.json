@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "module": "commonjs",
-    "lib": ["es5"],
+    "target": "es2022",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "lib": ["es2022"],
     "alwaysStrict": true,
     "strict": true,
     "preserveConstEnums": true,
     "sourceMap": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["@cloudflare/workers-types"]
   },
   "include": ["src", "worker-configuration.d.ts"],
   "exclude": ["node_modules", "dist"]
