@@ -10,8 +10,9 @@
     "moduleResolution": "node",
     "sourceMap": false,
     "esModuleInterop": true,
-    "types": ["./worker-configuration.d.ts", "@types/service-worker-mock", "node"]
+    "skipLibCheck": true,
+    "types": ["@types/service-worker-mock", "node"]
   },
-  "include": ["src"],
+  "include": ["src", "worker-configuration.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

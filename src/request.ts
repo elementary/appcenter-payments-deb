@@ -113,8 +113,6 @@ async function parseBody (request: Request): Promise<Object> {
     contentType.includes('application/json') ||
     contentType.includes('application/vnd.api+json')
   ) {
-    // Needed for typescript to build
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const jsonBody = (await request.json()) as { data?: object }
     return jsonBody.data == null ? {} : jsonBody.data
   } else {
