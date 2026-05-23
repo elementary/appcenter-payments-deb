@@ -8,8 +8,9 @@
   "main": "dist/worker.js",
   "scripts": {
     "start": "wrangler dev",
+    "prebuild": "wrangler types",
     "build": "webpack",
-    "types": "wrangler types",
+    "typecheck": "tsc --noEmit",
     "lint": "ts-standard && prettier-standard --check",
     "format": "prettier-standard --format",
     "deploy": "wrangler publish --env production"
