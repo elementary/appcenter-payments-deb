@@ -12,7 +12,7 @@ kv_namespaces = [
 
 [vars]
 NODE_ENV = "development"
-STRIPE_API_VERSION = "2020-08-27"
+STRIPE_API_VERSION = "2026-04-22.dahlia"
 STRIPE_SECRET_KEY = "sk_test_abc1234"
 MAILGUN_USERNAME = "test"
 MAILGUN_API_KEY = "test"
@@ -29,4 +29,4 @@ kv_namespaces = [
 
 [env.production.vars]
 NODE_ENV = "production"
-STRIPE_API_VERSION = "2020-08-27"
+STRIPE_API_VERSION = "2026-04-22.dahlia"

@@ -11,7 +11,7 @@ interface FEES {
 
 function createClient (env: Env): Stripe {
   return new Stripe(env.STRIPE_SECRET_KEY!, {
-    apiVersion: env.STRIPE_API_VERSION as typeof Stripe.API_VERSION,
+    apiVersion: env.STRIPE_API_VERSION,
     appInfo: {
       name: 'appcenter-payments-deb',
       version: '1.0.0',
@@ -49,12 +49,13 @@ export async function createCharge (
   const fees = calculateFee(request.amount)
   const stripe = createClient(env)
 
+  // Legacy Charges API; Stripe recommends PaymentIntents for new card payments.
   const payment = await stripe.charges.create(
     {
       amount: fees.total,
       application_fee_amount: fees.elementary,
       capture: true,
-      currency: request.currency,
+      currency: request.currency.toLowerCase(),
       description: request.rdnn,
       source: request.token
     },
