@@ -13,12 +13,38 @@ on:
 
 permissions:
   contents: read
-  security-events: write
 
 jobs:
-  
+
+  check:
+    name: ${{ matrix.task }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [build, lint, typecheck]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Run ${{ matrix.task }}
+        run: npm run ${{ matrix.task }}
+
   analyze:
-    name: Analyze
+    name: CodeQL
     runs-on: ubuntu-latest
 
     permissions:
@@ -30,7 +56,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Node
@@ -53,71 +78,16 @@ jobs:
       - name: Analyze
         uses: github/codeql-action/analyze@v4
 
-  build:
-    name: Build
+  dependency-review:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
           persist-credentials: false
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 'lts/*'
-          cache: "npm"
-
-      - name: Install
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 'lts/*'
-          cache: "npm"
-
-      - name: Install
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-  types:
-    name: Type Check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 'lts/*'
-          cache: "npm"
-
-      - name: Install
-        run: npm ci
-
-      - name: Type Check
-        run: npm run typecheck
+      - name: Review
+        uses: actions/dependency-review-action@v4
