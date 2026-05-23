@@ -5,7 +5,9 @@
   "version": "1.0.0",
   "author": "Blake Kostner <git@btkostner.io>",
   "license": "MIT",
-  "main": "src/worker.ts",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "start": "wrangler dev",
     "types": "wrangler types",
