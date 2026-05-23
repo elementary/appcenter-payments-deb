@@ -11,13 +11,13 @@ const RDNN_SCHEMA = z
     'Unable to parse project RDNN'
   ))
   .max(255, {
-    message: 'Project RDNN must be shorter than 255 characters'
+    error: 'Project RDNN must be shorter than 255 characters'
   })
   .regex(/^(?:[a-z0-9-_]+\.){2,}(?:[a-z0-9-_]+)$/i, {
-    message: 'Project RDNN is not in an RDNN format'
+    error: 'Project RDNN is not in an RDNN format'
   })
   .nonempty({
-    message: 'Project RDNN is required'
+    error: 'Project RDNN is required'
   })
 
 const ACCOUNT_SCHEMA = z
@@ -26,71 +26,66 @@ const ACCOUNT_SCHEMA = z
     'Error finding Stripe account ID'
   ))
   .regex(/^acct_[a-z0-9]+/i, {
-    message: 'Stripe account is must start with acc_'
+    error: 'Stripe account is must start with acc_'
   })
   .nonempty({
-    message: 'Unable to find account ID from public key'
+    error: 'Unable to find account ID from public key'
   })
 
-const DATA_SCHEMA = z
-  .object({
-    key: z
-      .string(messages(
-        'Stripe public key is required',
-        'Unable to parse Stripe project public key'
+const DATA_SCHEMA = z.strictObject({
+  key: z
+    .string(messages(
+      'Stripe public key is required',
+      'Unable to parse Stripe project public key'
+    ))
+    .max(255, {
+      error: 'Stripe public key must be shorter than 255 characters'
+    })
+    .regex(/^pk_[a-z0-9]+/i, {
+      error: 'Stripe public key must start with pk_'
+    })
+    .nonempty({
+      error: 'Stripe public key is required'
+    }),
+  token: z
+    .string(messages(
+      'Stripe token is required',
+      'Unable to parse Stripe token'
+    ))
+    .max(255, {
+      error: 'Stripe token must be shorter than 255 characters'
+    })
+    .regex(/^tok_[a-z0-9]+/i, {
+      error: 'Stripe token must start with tok_'
+    })
+    .nonempty({
+      error: 'Stripe token is required'
+    }),
+  email: z
+    .email({ error: 'Email must be a valid email address' })
+    .optional(),
+  amount: z.preprocess(
+    Number,
+    z
+      .number(messages(
+        'Amount is required',
+        'Unable to parse payment amount integer'
       ))
-      .max(255, {
-        message: 'Stripe public key must be shorter than 255 characters'
+      .int({
+        error: 'Amount must be an integer'
       })
-      .regex(/^pk_[a-z0-9]+/i, {
-        message: 'Stripe public key must start with pk_'
+      .gte(100, {
+        error: 'Amount must be more than 100'
       })
-      .nonempty({
-        message: 'Stripe public key is required'
-      }),
-    token: z
-      .string(messages(
-        'Stripe token is required',
-        'Unable to parse Stripe token'
-      ))
-      .max(255, {
-        message: 'Stripe token must be shorter than 255 characters'
+      .lte(100000000, {
+        error: 'Amount must be less than 100000000'
       })
-      .regex(/^tok_[a-z0-9]+/i, {
-        message: 'Stripe token must start with tok_'
+      .multipleOf(100, {
+        error: 'Amount must be a multiple of 100 (a whole dollar amount)'
       })
-      .nonempty({
-        message: 'Stripe token is required'
-      }),
-    email: z
-      .string({ error: 'Unable to parse email address' })
-      .email({
-        message: 'Email must be a valid email address'
-      })
-      .optional(),
-    amount: z.preprocess(
-      Number,
-      z
-        .number(messages(
-          'Amount is required',
-          'Unable to parse payment amount integer'
-        ))
-        .int({
-          message: 'Amount must be an integer'
-        })
-        .gte(100, {
-          message: 'Amount must be more than 100'
-        })
-        .lte(100000000, {
-          message: 'Amount must be less than 100000000'
-        })
-        .multipleOf(100, {
-          message: 'Amount must be a multiple of 100 (a whole dollar amount)'
-        })
-    ),
-    currency: z.enum(['USD']).default('USD')
-  })
-  .strict()
+  ),
+  currency: z.enum(['USD']).default('USD')
+})
 
 export const REQUEST_SCHEMA = DATA_SCHEMA.and(
   z.object({ rdnn: RDNN_SCHEMA })
