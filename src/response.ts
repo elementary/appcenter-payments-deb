@@ -1,9 +1,24 @@
-import * as JSONAPI from 'jsonapi-typescript'
 import Stripe from 'stripe'
 import { ZodError } from 'zod'
 
+interface JsonApiErrorObject {
+  id?: number | string
+  status?: string
+  code?: string
+  title?: string
+  detail?: string
+  source?: {
+    pointer?: string
+    parameter?: string
+  }
+}
+
+interface JsonApiErrorDocument {
+  errors: JsonApiErrorObject[]
+}
+
 export class ResponseError {
-  protected errors: JSONAPI.ErrorObject[]
+  protected errors: JsonApiErrorObject[]
   protected status: number
 
   constructor () {
@@ -11,7 +26,7 @@ export class ResponseError {
     this.status = 400
   }
 
-  addError (error: JSONAPI.ErrorObject): this {
+  addError (error: JsonApiErrorObject): this {
     this.errors.push(error)
 
     return this
@@ -53,7 +68,7 @@ export class ResponseError {
     return this
   }
 
-  toObject (): JSONAPI.Document {
+  toObject (): JsonApiErrorDocument {
     return { errors: this.errors }
   }
 
