@@ -2,11 +2,16 @@ import { z } from 'zod'
 
 declare const STRIPE_ACCOUNT_IDS: KVNamespace
 
+const messages = (required: string, invalid: string) => ({
+  error: (iss: { input: unknown }) =>
+    iss.input === undefined ? required : invalid
+})
+
 const RDNN_SCHEMA = z
-  .string({
-    invalid_type_error: 'Unable to parse project RDNN',
-    required_error: 'Project RDNN is required'
-  })
+  .string(messages(
+    'Project RDNN is required',
+    'Unable to parse project RDNN'
+  ))
   .max(255, {
     message: 'Project RDNN must be shorter than 255 characters'
   })
@@ -18,10 +23,10 @@ const RDNN_SCHEMA = z
   })
 
 const ACCOUNT_SCHEMA = z
-  .string({
-    invalid_type_error: 'Error finding Stripe account ID',
-    required_error: 'Unable to find Stripe account ID'
-  })
+  .string(messages(
+    'Unable to find Stripe account ID',
+    'Error finding Stripe account ID'
+  ))
   .regex(/^acct_[a-z0-9]+/i, {
     message: 'Stripe account is must start with acc_'
   })
@@ -32,10 +37,10 @@ const ACCOUNT_SCHEMA = z
 const DATA_SCHEMA = z
   .object({
     key: z
-      .string({
-        invalid_type_error: 'Unable to parse Stripe project public key',
-        required_error: 'Stripe public key is required'
-      })
+      .string(messages(
+        'Stripe public key is required',
+        'Unable to parse Stripe project public key'
+      ))
       .max(255, {
         message: 'Stripe public key must be shorter than 255 characters'
       })
@@ -46,10 +51,10 @@ const DATA_SCHEMA = z
         message: 'Stripe public key is required'
       }),
     token: z
-      .string({
-        invalid_type_error: 'Unable to parse Stripe token',
-        required_error: 'Stripe token is required'
-      })
+      .string(messages(
+        'Stripe token is required',
+        'Unable to parse Stripe token'
+      ))
       .max(255, {
         message: 'Stripe token must be shorter than 255 characters'
       })
@@ -60,9 +65,7 @@ const DATA_SCHEMA = z
         message: 'Stripe token is required'
       }),
     email: z
-      .string({
-        invalid_type_error: 'Unable to parse email address'
-      })
+      .string({ error: 'Unable to parse email address' })
       .email({
         message: 'Email must be a valid email address'
       })
@@ -70,10 +73,10 @@ const DATA_SCHEMA = z
     amount: z.preprocess(
       Number,
       z
-        .number({
-          invalid_type_error: 'Unable to parse payment amount integer',
-          required_error: 'Amount is required'
-        })
+        .number(messages(
+          'Amount is required',
+          'Unable to parse payment amount integer'
+        ))
         .int({
           message: 'Amount must be an integer'
         })

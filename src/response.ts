@@ -43,7 +43,7 @@ export class ResponseError {
   }
 
   addValidationError (error: ZodError): this {
-    error.errors.forEach(nestedError => {
+    error.issues.forEach(nestedError => {
       const source =
         nestedError.path === ['project']
           ? { parameter: 'project' }
