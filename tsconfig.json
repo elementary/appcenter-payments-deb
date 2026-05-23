@@ -10,7 +10,7 @@
     "moduleResolution": "node",
     "sourceMap": false,
     "esModuleInterop": true,
-    "types": ["@cloudflare/workers-types", "@types/service-worker-mock", "node"]
+    "types": ["./worker-configuration.d.ts", "@types/service-worker-mock", "node"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

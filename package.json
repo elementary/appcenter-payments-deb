@@ -9,13 +9,12 @@
   "scripts": {
     "start": "wrangler dev",
     "build": "webpack",
+    "types": "wrangler types",
     "lint": "ts-standard && prettier-standard --check",
     "format": "prettier-standard --format",
     "deploy": "wrangler publish --env production"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^3.2.0",
-    "@cloudflare/wrangler": "^1.19.5",
     "@types/service-worker-mock": "^2.0.1",
     "form-data": "^4.0.6",
     "jsonapi-typescript": "^0.1.3",
