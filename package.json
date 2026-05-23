@@ -8,8 +8,10 @@
   "main": "src/worker.ts",
   "scripts": {
     "start": "wrangler dev",
+    "types": "wrangler types",
     "prebuild": "wrangler types",
     "build": "wrangler deploy --dry-run --outdir=dist",
+    "pretypecheck": "wrangler types",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "eslint . --fix",
