@@ -25,7 +25,7 @@ const ACCOUNT_SCHEMA = z
     'Unable to find Stripe account ID',
     'Error finding Stripe account ID'
   ))
-  .regex(/^acct_[a-z0-9]+/i, {
+  .regex(/^acct_[a-z0-9]+$/i, {
     error: 'Stripe account is must start with acc_'
   })
   .nonempty({
@@ -41,7 +41,7 @@ const DATA_SCHEMA = z.strictObject({
     .max(255, {
       error: 'Stripe public key must be shorter than 255 characters'
     })
-    .regex(/^pk_[a-z0-9]+/i, {
+    .regex(/^pk_[a-z0-9]+$/i, {
       error: 'Stripe public key must start with pk_'
     })
     .nonempty({
@@ -55,7 +55,7 @@ const DATA_SCHEMA = z.strictObject({
     .max(255, {
       error: 'Stripe token must be shorter than 255 characters'
     })
-    .regex(/^tok_[a-z0-9]+/i, {
+    .regex(/^tok_[a-z0-9]+$/i, {
       error: 'Stripe token must start with tok_'
     })
     .nonempty({
