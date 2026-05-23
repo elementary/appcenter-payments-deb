@@ -9,10 +9,11 @@ interface FEES {
   total: number
 }
 
+declare const STRIPE_API_VERSION: string
 declare const STRIPE_SECRET_KEY: string
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2020-08-27',
+  apiVersion: STRIPE_API_VERSION as typeof Stripe.API_VERSION,
   appInfo: {
     name: 'appcenter-payments-deb',
     version: '1.0.0',

@@ -32,7 +32,7 @@ export class ResponseError {
     return this
   }
 
-  addStripeError (error: Stripe.StripeError): this {
+  addStripeError (error: InstanceType<typeof Stripe.errors.StripeError>): this {
     this.errors.push({
       code: error.type,
       title: error.name,
