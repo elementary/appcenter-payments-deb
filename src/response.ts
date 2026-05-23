@@ -45,7 +45,7 @@ export class ResponseError {
   addValidationError (error: ZodError): this {
     error.issues.forEach(nestedError => {
       const source =
-        nestedError.path === ['project']
+        nestedError.path.length === 0
           ? { parameter: 'project' }
           : { pointer: `data/attributes/${nestedError.path.join('/')}` }
 

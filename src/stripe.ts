@@ -9,9 +9,6 @@ interface FEES {
   total: number
 }
 
-declare const STRIPE_API_VERSION: string
-declare const STRIPE_SECRET_KEY: string
-
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: STRIPE_API_VERSION as typeof Stripe.API_VERSION,
   appInfo: {

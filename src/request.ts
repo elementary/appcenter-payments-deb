@@ -1,7 +1,5 @@
 import { z } from 'zod'
 
-declare const STRIPE_ACCOUNT_IDS: KVNamespace
-
 const messages = (required: string, invalid: string) => ({
   error: (iss: { input: unknown }) =>
     iss.input === undefined ? required : invalid
