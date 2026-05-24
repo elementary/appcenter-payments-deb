@@ -20,7 +20,6 @@
     "deploy": "wrangler deploy --env production"
   },
   "dependencies": {
-    "form-data": "^4.0.5",
     "stripe": "^22.1.1",
     "zod": "^4.4.3"
   },
