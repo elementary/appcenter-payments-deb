@@ -1,4 +1,4 @@
-import { RequestType } from './request'
+import type { RequestType } from './request'
 
 type ReceiptRequest = Omit<RequestType, 'email'> & { email: string }
 

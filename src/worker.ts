@@ -2,7 +2,8 @@ import Stripe from 'stripe'
 import { ZodError } from 'zod'
 
 import { sendReceipt } from './mailer'
-import { parseRequest, RequestType } from './request'
+import { parseRequest } from './request'
+import type { RequestType } from './request'
 import { ResponseError, ResponseSuccess } from './response'
 import { createCharge, validateEnv } from './stripe'
 

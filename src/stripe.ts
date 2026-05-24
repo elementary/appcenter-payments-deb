@@ -1,7 +1,7 @@
 import Stripe from 'stripe'
 
 import { name, version } from '../package.json'
-import { RequestType } from './request'
+import type { RequestType } from './request'
 
 interface FEES {
   stripe: number
