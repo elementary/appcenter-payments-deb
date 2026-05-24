@@ -21,16 +21,7 @@ async function handleRequest (
       .toResponse()
   }
 
-  let parsed: RequestType = {
-    rdnn: '',
-    account: '',
-    key: '',
-    token: '',
-    email: undefined,
-    amount: 0,
-    currency: 'USD'
-  }
-
+  let parsed: RequestType
   try {
     parsed = await parseRequest(request, env)
   } catch (err) {
