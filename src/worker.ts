@@ -3,7 +3,7 @@ import { ZodError } from 'zod'
 
 import { sendReceipt } from './mailer'
 import { parseRequest, RequestType } from './request'
-import { ResponseError } from './response'
+import { ResponseError, ResponseSuccess } from './response'
 import { createCharge } from './stripe'
 
 async function handleRequest (
@@ -70,14 +70,11 @@ async function handleRequest (
     )
   }
 
-  return new Response(
-    JSON.stringify({
-      name: parsed.rdnn,
-      key: parsed.key,
-      amount: parsed.amount
-    }),
-    { status: 200 }
-  )
+  return new ResponseSuccess({
+    name: parsed.rdnn,
+    key: parsed.key,
+    amount: parsed.amount
+  }).toResponse()
 }
 
 export default {

@@ -1,6 +1,8 @@
 import Stripe from 'stripe'
 import { ZodError } from 'zod'
 
+const CONTENT_TYPE = 'application/vnd.api+json'
+
 interface JsonApiErrorObject {
   id?: number | string
   status?: string
@@ -15,6 +17,28 @@ interface JsonApiErrorObject {
 
 interface JsonApiErrorDocument {
   errors: JsonApiErrorObject[]
+}
+
+export class ResponseSuccess {
+  protected body: object
+  protected status: number
+
+  constructor (body: object) {
+    this.body = body
+    this.status = 200
+  }
+
+  setStatus (status: number): this {
+    this.status = status
+    return this
+  }
+
+  toResponse (): Response {
+    return new Response(JSON.stringify(this.body), {
+      status: this.status,
+      headers: { 'Content-Type': CONTENT_TYPE }
+    })
+  }
 }
 
 export class ResponseError {
@@ -77,6 +101,9 @@ export class ResponseError {
   }
 
   toResponse (): Response {
-    return new Response(this.toString(), { status: this.status })
+    return new Response(this.toString(), {
+      status: this.status,
+      headers: { 'Content-Type': CONTENT_TYPE }
+    })
   }
 }
