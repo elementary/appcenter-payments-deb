@@ -1,12 +1,14 @@
 import { RequestType } from './request'
 
+type ReceiptRequest = Omit<RequestType, 'email'> & { email: string }
+
 export async function sendReceipt (
-  request: RequestType,
+  request: ReceiptRequest,
   env: Env
-): Promise<Boolean> {
+): Promise<boolean> {
   const form = new FormData()
   form.append('from', 'elementary AppCenter <payment@elementary.io>')
-  form.append('to', request.email!)
+  form.append('to', request.email)
   form.append('subject', 'AppCenter Purchase')
   form.append('template', 'appcenter-payment')
   form.append('v:amount', String(Math.round(request.amount / 100)))
@@ -24,7 +26,7 @@ export async function sendReceipt (
     }
   )
 
-  if (res.status !== 200) {
+  if (!res.ok) {
     const body = await res.text()
     console.error(`Error sending email: ${body}`)
     return false

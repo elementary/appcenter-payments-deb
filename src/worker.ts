@@ -70,9 +70,10 @@ async function handleRequest (
     }
   }
 
-  if (parsed.email != null) {
+  const { email } = parsed
+  if (email != null) {
     ctx.waitUntil(
-      sendReceipt(parsed, env).catch(err => {
+      sendReceipt({ ...parsed, email }, env).catch(err => {
         console.error(`Error while sending Mailgun email: ${String(err)}`)
       })
     )
