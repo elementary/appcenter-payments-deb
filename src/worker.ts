@@ -4,7 +4,7 @@ import { ZodError } from 'zod'
 import { sendReceipt } from './mailer'
 import { parseRequest, RequestType } from './request'
 import { ResponseError, ResponseSuccess } from './response'
-import { createCharge } from './stripe'
+import { createCharge, validateEnv } from './stripe'
 
 async function handleRequest (
   request: Request,
@@ -18,6 +18,19 @@ async function handleRequest (
         detail: 'This endpoint only accepts POST requests'
       })
       .setStatus(405)
+      .toResponse()
+  }
+
+  try {
+    validateEnv(env)
+  } catch (err) {
+    console.error(`Configuration error: ${String(err)}`)
+    return new ResponseError()
+      .addError({
+        title: 'Configuration Error',
+        detail: 'Payment processing is not configured'
+      })
+      .setStatus(500)
       .toResponse()
   }
 

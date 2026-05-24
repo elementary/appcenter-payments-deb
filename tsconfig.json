@@ -12,6 +12,7 @@
     "preserveConstEnums": true,
     "sourceMap": false,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "types": []
   },

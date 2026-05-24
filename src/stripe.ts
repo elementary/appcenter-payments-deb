@@ -1,5 +1,6 @@
 import Stripe from 'stripe'
 
+import { name, version } from '../package.json'
 import { RequestType } from './request'
 
 interface FEES {
@@ -9,12 +10,20 @@ interface FEES {
   total: number
 }
 
-function createClient (env: Env): Stripe {
-  return new Stripe(env.STRIPE_SECRET_KEY!, {
+export type ValidatedEnv = Env & { STRIPE_SECRET_KEY: string }
+
+export function validateEnv (env: Env): asserts env is ValidatedEnv {
+  if (typeof env.STRIPE_SECRET_KEY !== 'string') {
+    throw new Error('STRIPE_SECRET_KEY is not set')
+  }
+}
+
+function createClient (env: ValidatedEnv): Stripe {
+  return new Stripe(env.STRIPE_SECRET_KEY, {
     apiVersion: env.STRIPE_API_VERSION,
     appInfo: {
-      name: 'appcenter-payments-deb',
-      version: '1.0.0',
+      name,
+      version,
       url: 'https://github.com/elementary/appcenter-payments-deb'
     },
     httpClient: Stripe.createFetchHttpClient(),
@@ -39,12 +48,16 @@ export function calculateFee (amount: number): FEES {
 
   out.developer = amount - out.elementary - out.stripe
 
+  if (out.developer < 0) {
+    throw new Error(`Calculated developer fee is negative for amount=${amount}`)
+  }
+
   return out
 }
 
 export async function createCharge (
   request: RequestType,
-  env: Env
+  env: ValidatedEnv
 ): Promise<string> {
   const fees = calculateFee(request.amount)
   const stripe = createClient(env)
