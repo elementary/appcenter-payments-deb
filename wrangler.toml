@@ -17,6 +17,16 @@ STRIPE_SECRET_KEY = "sk_test_abc1234"
 MAILGUN_USERNAME = "test"
 MAILGUN_API_KEY = "test"
 
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[observability.logs]
+invocation_logs = false
+
+[observability.traces]
+enabled = false
+
 [env.production]
 name = "appcenter-payments-deb"
 
