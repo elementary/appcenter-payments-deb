@@ -87,40 +87,39 @@ const DATA_SCHEMA = z.strictObject({
   currency: z.enum(['USD']).default('USD')
 })
 
-export const REQUEST_SCHEMA = DATA_SCHEMA.and(
-  z.object({ rdnn: RDNN_SCHEMA })
-).and(z.object({ account: ACCOUNT_SCHEMA }))
+export const REQUEST_SCHEMA = z.strictObject({
+  ...DATA_SCHEMA.shape,
+  rdnn: RDNN_SCHEMA,
+  account: ACCOUNT_SCHEMA
+})
 export type RequestType = z.infer<typeof REQUEST_SCHEMA>
+
+const ENVELOPE_SCHEMA = z.object({ data: z.unknown().optional() })
 
 function parseRdnn (request: Request): string {
   const parsedUrl = new URL(request.url)
   const pathChunks = parsedUrl.pathname.split('/')
-  const lastChunk = pathChunks[pathChunks.length - 1]
-
-  return lastChunk == null ? '' : lastChunk
+  return RDNN_SCHEMA.parse(pathChunks[pathChunks.length - 1])
 }
 
-async function parseBody (request: Request): Promise<Object> {
-  const { headers } = request
-  const contentTypeHeader = headers.get('content-type')
-  const contentType = contentTypeHeader == null ? '' : contentTypeHeader
+async function parseBody (request: Request): Promise<unknown> {
+  const contentType = request.headers.get('content-type') ?? ''
 
-  if (
+  const isJson =
     contentType.includes('application/json') ||
     contentType.includes('application/vnd.api+json')
-  ) {
-    const jsonBody = (await request.json()) as { data?: object }
-    return jsonBody.data == null ? {} : jsonBody.data
-  } else {
-    return {}
-  }
+
+  if (!isJson) return {}
+
+  const envelope = ENVELOPE_SCHEMA.parse(await request.json())
+  return envelope.data ?? {}
 }
 
 export async function parseRequest (
   request: Request,
   env: Env
 ): Promise<RequestType> {
-  const rdnn = RDNN_SCHEMA.parse(parseRdnn(request))
+  const rdnn = parseRdnn(request)
   const data = DATA_SCHEMA.parse(await parseBody(request))
 
   const account = ACCOUNT_SCHEMA.parse(
