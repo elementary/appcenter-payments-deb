@@ -1,17 +1,17 @@
-import FormData from 'form-data'
+import type { RequestType } from './request'
 
-import { RequestType } from './request'
+type ReceiptRequest = Omit<RequestType, 'email'> & { email: string }
 
-declare const MAILGUN_USERNAME: string
-declare const MAILGUN_API_KEY: string
-
-export async function sendReceipt (request: RequestType): Promise<Boolean> {
+export async function sendReceipt (
+  request: ReceiptRequest,
+  env: Env
+): Promise<boolean> {
   const form = new FormData()
   form.append('from', 'elementary AppCenter <payment@elementary.io>')
   form.append('to', request.email)
   form.append('subject', 'AppCenter Purchase')
   form.append('template', 'appcenter-payment')
-  form.append('v:amount', Math.round(request.amount / 100))
+  form.append('v:amount', String(Math.round(request.amount / 100)))
   form.append('v:rdnn', request.rdnn)
 
   const res = await fetch(
@@ -20,17 +20,13 @@ export async function sendReceipt (request: RequestType): Promise<Boolean> {
       method: 'POST',
       headers: {
         Authorization:
-          'Basic ' +
-          Buffer.from(`${MAILGUN_USERNAME}:${MAILGUN_API_KEY}`).toString(
-            'base64'
-          )
+          'Basic ' + btoa(`${env.MAILGUN_USERNAME}:${env.MAILGUN_API_KEY}`)
       },
-      // I hate TypeScript and npm _most_ days.
-      body: (form as unknown) as string
+      body: form
     }
   )
 
-  if (res.status !== 200) {
+  if (!res.ok) {
     const body = await res.text()
     console.error(`Error sending email: ${body}`)
     return false

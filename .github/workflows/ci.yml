@@ -11,9 +11,40 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
+
+  check:
+    name: ${{ matrix.task }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [build, lint, typecheck]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Run ${{ matrix.task }}
+        run: npm run ${{ matrix.task }}
+
   analyze:
-    name: Analyze
+    name: CodeQL
     runs-on: ubuntu-latest
 
     permissions:
@@ -23,17 +54,20 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup CodeQL
-        uses: github/codeql-action/init@v2
+        uses: actions/checkout@v6
         with:
-          languages: javascript
+          persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '16'
+          node-version: 'lts/*'
+          cache: "npm"
+
+      - name: Setup CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript
 
       - name: Install
         run: npm ci
@@ -42,61 +76,18 @@ jobs:
         run: npm run build
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v4
 
-  build:
-    name: Build
+  dependency-review:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v6
         with:
-          node-version: '16'
+          persist-credentials: false
 
-      - name: Install
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-  format:
-    name: Format
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '16'
-
-      - name: Install
-        run: npm ci
-
-      - name: Lint
-        run: npm run format
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '16'
-
-      - name: Install
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
+      - name: Review
+        uses: actions/dependency-review-action@v4

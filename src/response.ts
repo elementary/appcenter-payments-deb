@@ -1,9 +1,48 @@
-import * as JSONAPI from 'jsonapi-typescript'
 import Stripe from 'stripe'
 import { ZodError } from 'zod'
 
+const CONTENT_TYPE = 'application/vnd.api+json'
+
+interface JsonApiErrorObject {
+  id?: number | string
+  status?: string
+  code?: string
+  title?: string
+  detail?: string
+  source?: {
+    pointer?: string
+    parameter?: string
+  }
+}
+
+interface JsonApiErrorDocument {
+  errors: JsonApiErrorObject[]
+}
+
+export class ResponseSuccess {
+  protected body: object
+  protected status: number
+
+  constructor (body: object) {
+    this.body = body
+    this.status = 200
+  }
+
+  setStatus (status: number): this {
+    this.status = status
+    return this
+  }
+
+  toResponse (): Response {
+    return new Response(JSON.stringify(this.body), {
+      status: this.status,
+      headers: { 'Content-Type': CONTENT_TYPE }
+    })
+  }
+}
+
 export class ResponseError {
-  protected errors: JSONAPI.ErrorObject[]
+  protected errors: JsonApiErrorObject[]
   protected status: number
 
   constructor () {
@@ -11,13 +50,13 @@ export class ResponseError {
     this.status = 400
   }
 
-  addError (error: JSONAPI.ErrorObject): this {
+  addError (error: JsonApiErrorObject): this {
     this.errors.push(error)
 
     return this
   }
 
-  addStripeError (error: Stripe.StripeError): this {
+  addStripeError (error: InstanceType<typeof Stripe.errors.StripeError>): this {
     this.errors.push({
       code: error.type,
       title: error.name,
@@ -28,9 +67,9 @@ export class ResponseError {
   }
 
   addValidationError (error: ZodError): this {
-    error.errors.forEach(nestedError => {
+    error.issues.forEach(nestedError => {
       const source =
-        nestedError.path === ['project']
+        nestedError.path.length === 0
           ? { parameter: 'project' }
           : { pointer: `data/attributes/${nestedError.path.join('/')}` }
 
@@ -53,7 +92,7 @@ export class ResponseError {
     return this
   }
 
-  toObject (): JSONAPI.Document {
+  toObject (): JsonApiErrorDocument {
     return { errors: this.errors }
   }
 
@@ -62,6 +101,9 @@ export class ResponseError {
   }
 
   toResponse (): Response {
-    return new Response(this.toString(), { status: this.status })
+    return new Response(this.toString(), {
+      status: this.status,
+      headers: { 'Content-Type': CONTENT_TYPE }
+    })
   }
 }

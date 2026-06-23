@@ -2,12 +2,17 @@ import Stripe from 'stripe'
 import { ZodError } from 'zod'
 
 import { sendReceipt } from './mailer'
-import { parseRequest, RequestType } from './request'
-import { ResponseError } from './response'
-import { createCharge } from './stripe'
+import { parseRequest } from './request'
+import type { RequestType } from './request'
+import { ResponseError, ResponseSuccess } from './response'
+import { createCharge, validateEnv } from './stripe'
 
-async function handleRequest (event: FetchEvent): Promise<Response> {
-  if (event.request.method !== 'POST') {
+async function handleRequest (
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext
+): Promise<Response> {
+  if (request.method !== 'POST') {
     return new ResponseError()
       .addError({
         title: 'Bad Method',
@@ -17,18 +22,22 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
       .toResponse()
   }
 
-  let request: RequestType = {
-    rdnn: '',
-    account: '',
-    key: '',
-    token: '',
-    email: undefined,
-    amount: 0,
-    currency: 'USD'
+  try {
+    validateEnv(env)
+  } catch (err) {
+    console.error(`Configuration error: ${String(err)}`)
+    return new ResponseError()
+      .addError({
+        title: 'Configuration Error',
+        detail: 'Payment processing is not configured'
+      })
+      .setStatus(500)
+      .toResponse()
   }
 
+  let parsed: RequestType
   try {
-    request = await parseRequest(event.request)
+    parsed = await parseRequest(request, env)
   } catch (err) {
     console.error(`Error while parsing request: ${String(err)}`)
 
@@ -45,7 +54,7 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
   }
 
   try {
-    await createCharge(request)
+    await createCharge(parsed, env)
   } catch (err) {
     console.error(`Error while creating Stripe charge: ${String(err)}`)
 
@@ -66,24 +75,22 @@ async function handleRequest (event: FetchEvent): Promise<Response> {
     }
   }
 
-  if (request.email != null) {
-    event.waitUntil(
-      sendReceipt(request).catch(err => {
+  const { email } = parsed
+  if (email != null) {
+    ctx.waitUntil(
+      sendReceipt({ ...parsed, email }, env).catch(err => {
         console.error(`Error while sending Mailgun email: ${String(err)}`)
       })
     )
   }
 
-  return new Response(
-    JSON.stringify({
-      name: request.rdnn,
-      key: request.key,
-      amount: request.amount
-    }),
-    { status: 200 }
-  )
+  return new ResponseSuccess({
+    name: parsed.rdnn,
+    key: parsed.key,
+    amount: parsed.amount
+  }).toResponse()
 }
 
-addEventListener('fetch', (event: FetchEvent) => {
-  event.respondWith(handleRequest(event))
-})
+export default {
+  fetch: handleRequest
+}
